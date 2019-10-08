@@ -57,10 +57,10 @@ Private Function ValidateDraftEmail(draft As Outlook.MailItem)
         Exit Function
     End If
     
-    If frmSendBulkEmails.IsValidEmailAddress(draft.To) = False Then
-        ValidateDraftEmail = "To email address is invalid!"
-        Exit Function
-    End If
+'    If frmSendBulkEmails.IsValidEmailAddress(draft.To) = False Then
+'        ValidateDraftEmail = "To email address is invalid!"
+'        Exit Function
+'    End If
     
     If StrComp(draft.Subject, "", vbBinaryCompare) = 0 Then
         ValidateDraftEmail = "Draft email must have a subject!"

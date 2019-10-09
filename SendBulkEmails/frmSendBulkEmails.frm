@@ -13,6 +13,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+
 Public DraftEmail As Outlook.MailItem
 Private Sub CloseForm()
     tbEmailAddresses.Text = ""
@@ -71,9 +72,7 @@ Private Sub btnSendEmails_Click()
     badEmailAddressCount = 0
     
     Dim bccList As String
-    For Each address In emailAddresses
-        Dim emailAddress
-        emailAddress = Trim(address)
+    For Each emailAddress In emailAddresses
         If IsValidEmailAddress(emailAddress) = False Then
             badEmailAddressCount = badEmailAddressCount + 1
             
@@ -133,8 +132,20 @@ Private Sub Log(msg As String)
     tbLog.Text = tbLog.Text & msg & vbCrLf
 End Sub
 Private Function GetEmailAddresses()
-    Dim emailAddresses
-    emailAddresses = Split(tbEmailAddresses.Text, ";")
+    Dim emailAddresses() As String
+    Dim items() As String
+    items = Split(tbEmailAddresses.Text, ";")
+    Dim i As Integer
+    i = 0
+    For Each address In items
+        Dim emailAddress As String
+        emailAddress = Trim(address)
+        If Len(emailAddress) > 0 Then
+            ReDim Preserve emailAddresses(i)
+            emailAddresses(i) = emailAddress
+            i = i + 1
+        End If
+    Next
     GetEmailAddresses = emailAddresses
 End Function
 Public Function IsValidEmailAddress(ByVal emailAddress As String) As Boolean

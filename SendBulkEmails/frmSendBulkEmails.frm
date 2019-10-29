@@ -14,6 +14,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 
+
 Public DraftEmail As Outlook.MailItem
 Private Sub CloseForm()
     tbEmailAddresses.Text = ""
@@ -112,6 +113,20 @@ Private Sub btnSendEmails_Click()
         CloseForm
     End If
 End Sub
+Private Sub CopyAttachments(objSourceItem, objTargetItem)
+   Set fso = CreateObject("Scripting.FileSystemObject")
+   Set fldTemp = fso.GetSpecialFolder(2) ' TemporaryFolder
+   strPath = fldTemp.Path & "\"
+   For Each objAtt In objSourceItem.Attachments
+      strFile = strPath & objAtt.FileName
+      objAtt.SaveAsFile strFile
+      objTargetItem.Attachments.Add strFile, , , objAtt.DisplayName
+      fso.DeleteFile strFile
+   Next
+ 
+   Set fldTemp = Nothing
+   Set fso = Nothing
+End Sub
 Private Sub SendEmail(bccList As String, batchIndex As Integer)
     Log ("Sending batch # " & CStr(batchIndex) & " ...")
     Dim email As MailItem
@@ -122,6 +137,7 @@ Private Sub SendEmail(bccList As String, batchIndex As Integer)
         .Subject = DraftEmail.Subject
         .HTMLBody = DraftEmail.HTMLBody
     End With
+    CopyAttachments DraftEmail, email
     If ckbShowOnly.Value = True Then
         email.Display
     Else

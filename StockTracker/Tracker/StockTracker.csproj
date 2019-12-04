@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DB4D3AEB-0DA2-44A2-961B-40443CC7CF21}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>StockTracker</RootNamespace>
+    <AssemblyName>StockTracker</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CSharpAPI">
+      <HintPath>..\TWS API\bin\Debug\CSharpAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Messages\AccountDownloadEndMessage.cs" />
+    <Compile Include="Messages\AccountSummaryEndMessage.cs" />
+    <Compile Include="Messages\AccountSummaryMessage.cs" />
+    <Compile Include="Messages\AccountUpdateMultiEndMessage.cs" />
+    <Compile Include="Messages\AccountUpdateMultiMessage.cs" />
+    <Compile Include="Messages\AccountValueMessage.cs" />
+    <Compile Include="Messages\AdvisorDataMessage.cs" />
+    <Compile Include="Messages\CommissionMessage.cs" />
+    <Compile Include="Messages\ConnectionStatusMessage.cs" />
+    <Compile Include="Messages\ContractDetailsEndMessage.cs" />
+    <Compile Include="Messages\ContractDetailsMessage.cs" />
+    <Compile Include="Messages\DeepBookMessage.cs" />
+    <Compile Include="Messages\ErrorMessage.cs" />
+    <Compile Include="Messages\ExecutionMessage.cs" />
+    <Compile Include="Messages\FundamentalsMessage.cs" />
+    <Compile Include="Messages\HistoricalDataEndMessage.cs" />
+    <Compile Include="Messages\HistoricalDataMessage.cs" />
+    <Compile Include="Messages\IBMessage.cs" />
+    <Compile Include="Messages\LogMessage.cs" />
+    <Compile Include="Messages\ManagedAccountsMessage.cs" />
+    <Compile Include="Messages\MarketDataMessage.cs" />
+    <Compile Include="Messages\MessageType.cs" />
+    <Compile Include="Messages\OpenOrderEndMessage.cs" />
+    <Compile Include="Messages\OpenOrderMessage.cs" />
+    <Compile Include="Messages\OrderMessage.cs" />
+    <Compile Include="Messages\OrderStatusMessage.cs" />
+    <Compile Include="Messages\PositionMessage.cs" />
+    <Compile Include="Messages\PositionMultiEndMessage.cs" />
+    <Compile Include="Messages\PositionMultiMessage.cs" />
+    <Compile Include="Messages\RealTimeBarMessage.cs" />
+    <Compile Include="Messages\ScannerEndMessage.cs" />
+    <Compile Include="Messages\ScannerMessage.cs" />
+    <Compile Include="Messages\ScannerParametersMessage.cs" />
+    <Compile Include="Messages\SecurityDefinitionOptionParameterEndMessage.cs" />
+    <Compile Include="Messages\SecurityDefinitionOptionParameterMessage.cs" />
+    <Compile Include="Messages\TickOptionMessage.cs" />
+    <Compile Include="Messages\TickPriceMessage.cs" />
+    <Compile Include="Messages\TickSizeMessage.cs" />
+    <Compile Include="Messages\UpdateAccountTimeMessage.cs" />
+    <Compile Include="Messages\UpdatePortfolioMessage.cs" />
+    <Compile Include="Types\FinancialAdvisorTypes.cs" />
+    <Compile Include="Types\IBTypes.cs" />
+    <Compile Include="UI\StockTracker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\StockTracker.Designer.cs">
+      <DependentUpon>StockTracker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="IBClient.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\DataManager.cs" />
+    <Compile Include="UI\MarketDataManager.cs" />
+    <Compile Include="Utils\Utils.cs" />
+    <Compile Include="Utils\XmlHelper.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="UI\StockTracker.resx">
+      <DependentUpon>StockTracker.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -55,5 +55,6 @@
 		ScannerDataEnd = -ScannerData,
 
 		ConnectionStatus = 100,
+		CalculateWPR = 101
 	}
 }

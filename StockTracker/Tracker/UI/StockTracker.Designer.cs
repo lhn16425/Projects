@@ -28,10 +28,12 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StockTracker));
 			this.ssStatus = new System.Windows.Forms.StatusStrip();
 			this.tssLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.btnClearLog = new System.Windows.Forms.Button();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.btnStop = new System.Windows.Forms.Button();
 			this.primaryExchLabel = new System.Windows.Forms.Label();
@@ -48,12 +50,13 @@
 			this.cbTradingEnvironment = new System.Windows.Forms.ComboBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.dgvMarketData = new System.Windows.Forms.DataGridView();
+			this.tbLog = new System.Windows.Forms.TextBox();
 			this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.Last = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.BidPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.AskPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
-			this.tbLog = new System.Windows.Forms.TextBox();
-			this.btnClearLog = new System.Windows.Forms.Button();
+			this.WPR5D = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.WPR1D = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.ssStatus.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.panel1.SuspendLayout();
@@ -106,6 +109,16 @@
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(1181, 118);
 			this.panel1.TabIndex = 1;
+			// 
+			// btnClearLog
+			// 
+			this.btnClearLog.Location = new System.Drawing.Point(305, 9);
+			this.btnClearLog.Name = "btnClearLog";
+			this.btnClearLog.Size = new System.Drawing.Size(75, 23);
+			this.btnClearLog.TabIndex = 57;
+			this.btnClearLog.Text = "Clear Log";
+			this.btnClearLog.UseVisualStyleBackColor = true;
+			this.btnClearLog.Click += new System.EventHandler(this.btnClearLog_Click);
 			// 
 			// groupBox2
 			// 
@@ -288,13 +301,28 @@
             this.Description,
             this.Last,
             this.BidPrice,
-            this.AskPrice});
+            this.AskPrice,
+            this.WPR5D,
+            this.WPR1D});
 			this.dgvMarketData.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvMarketData.Location = new System.Drawing.Point(3, 127);
 			this.dgvMarketData.Name = "dgvMarketData";
 			this.dgvMarketData.ReadOnly = true;
 			this.dgvMarketData.Size = new System.Drawing.Size(1181, 354);
 			this.dgvMarketData.TabIndex = 2;
+			// 
+			// tbLog
+			// 
+			this.tbLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.tbLog.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tbLog.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.tbLog.Location = new System.Drawing.Point(3, 487);
+			this.tbLog.Multiline = true;
+			this.tbLog.Name = "tbLog";
+			this.tbLog.ReadOnly = true;
+			this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.tbLog.Size = new System.Drawing.Size(1181, 339);
+			this.tbLog.TabIndex = 3;
 			// 
 			// Description
 			// 
@@ -321,28 +349,17 @@
 			this.AskPrice.Name = "AskPrice";
 			this.AskPrice.ReadOnly = true;
 			// 
-			// tbLog
+			// WPR5D
 			// 
-			this.tbLog.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.tbLog.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tbLog.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.tbLog.Location = new System.Drawing.Point(3, 487);
-			this.tbLog.Multiline = true;
-			this.tbLog.Name = "tbLog";
-			this.tbLog.ReadOnly = true;
-			this.tbLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.tbLog.Size = new System.Drawing.Size(1181, 339);
-			this.tbLog.TabIndex = 3;
+			this.WPR5D.HeaderText = "W%R 5 Days";
+			this.WPR5D.Name = "WPR5D";
+			this.WPR5D.ReadOnly = true;
 			// 
-			// btnClearLog
+			// WPR1D
 			// 
-			this.btnClearLog.Location = new System.Drawing.Point(305, 9);
-			this.btnClearLog.Name = "btnClearLog";
-			this.btnClearLog.Size = new System.Drawing.Size(75, 23);
-			this.btnClearLog.TabIndex = 57;
-			this.btnClearLog.Text = "Clear Log";
-			this.btnClearLog.UseVisualStyleBackColor = true;
-			this.btnClearLog.Click += new System.EventHandler(this.btnClearLog_Click);
+			this.WPR1D.HeaderText = "W%R 1 Day";
+			this.WPR1D.Name = "WPR1D";
+			this.WPR1D.ReadOnly = true;
 			// 
 			// StockTracker
 			// 
@@ -351,6 +368,7 @@
 			this.ClientSize = new System.Drawing.Size(1187, 851);
 			this.Controls.Add(this.tlpMain);
 			this.Controls.Add(this.ssStatus);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "StockTracker";
 			this.Text = "Stock Tracker";
 			this.ssStatus.ResumeLayout(false);
@@ -377,10 +395,6 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button btnConnect;
 		private System.Windows.Forms.DataGridView dgvMarketData;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Description;
-		private System.Windows.Forms.DataGridViewTextBoxColumn Last;
-		private System.Windows.Forms.DataGridViewTextBoxColumn BidPrice;
-		private System.Windows.Forms.DataGridViewTextBoxColumn AskPrice;
 		private System.Windows.Forms.GroupBox groupBox2;
 		private System.Windows.Forms.Button btnStop;
 		private System.Windows.Forms.Label primaryExchLabel;
@@ -395,6 +409,12 @@
 		private System.Windows.Forms.TextBox tbExchange;
 		private System.Windows.Forms.TextBox tbLog;
 		private System.Windows.Forms.Button btnClearLog;
+		private System.Windows.Forms.DataGridViewTextBoxColumn Description;
+		private System.Windows.Forms.DataGridViewTextBoxColumn Last;
+		private System.Windows.Forms.DataGridViewTextBoxColumn BidPrice;
+		private System.Windows.Forms.DataGridViewTextBoxColumn AskPrice;
+		private System.Windows.Forms.DataGridViewTextBoxColumn WPR5D;
+		private System.Windows.Forms.DataGridViewTextBoxColumn WPR1D;
 	}
 }
 

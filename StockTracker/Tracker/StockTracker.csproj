@@ -56,6 +56,7 @@
     <Compile Include="Messages\AccountUpdateMultiMessage.cs" />
     <Compile Include="Messages\AccountValueMessage.cs" />
     <Compile Include="Messages\AdvisorDataMessage.cs" />
+    <Compile Include="Messages\CalculateWPRMessage.cs" />
     <Compile Include="Messages\CommissionMessage.cs" />
     <Compile Include="Messages\ConnectionStatusMessage.cs" />
     <Compile Include="Messages\ContractDetailsEndMessage.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="UI\MarketDataManager.cs" />
     <Compile Include="Utils\Utils.cs" />
     <Compile Include="Utils\XmlHelper.cs" />
+    <Compile Include="WPRCalculator.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

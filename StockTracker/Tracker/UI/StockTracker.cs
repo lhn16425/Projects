@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
+using Timer = System.Threading.Timer;
 
 namespace StockTracker
 {
@@ -13,6 +14,9 @@ namespace StockTracker
 		delegate void MessageHandler(IBMessage message);
 
 		private MarketDataManager MDManager;
+
+		private Timer OneDayWPRTimer;
+		private Timer FiveDayWPRTimer;
 
 		public bool Connected { get; set; }
 		private EReaderMonitorSignal MessageMonitor = new EReaderMonitorSignal();
@@ -36,6 +40,8 @@ namespace StockTracker
 			Client.ConnectionClosed += Client_ConnectionClosed;
 			Client.Error += Client_Error;
 			Client.TickPrice += Client_TickPrice;
+			Client.HistoricalData += (reqId, date, open, high, low, close, volume, count, WAP, hasGaps) =>
+				HandleMessage(new HistoricalDataMessage(reqId, date, open, high, low, close, volume, count, WAP, hasGaps));
 		}
 
 		void Log(string msg)
@@ -60,6 +66,12 @@ namespace StockTracker
 		{
 			Connected = true;
 			HandleMessage(new ConnectionStatusMessage(true));
+		}
+
+		void CalculateWPR(object wprType)
+		{
+			WPRType type = (WPRType)wprType;
+			HandleMessage(new CalculateWPRMessage(type));
 		}
 
 		void Client_ConnectionClosed()
@@ -104,11 +116,6 @@ namespace StockTracker
 			}
 		}
 
-		private void HandleTickMessage(MarketDataMessage tickMessage)
-		{
-			MDManager.UpdateUI(tickMessage);
-		}
-
 		private void UpdateUI(IBMessage message)
 		{
 			switch (message.Type)
@@ -120,6 +127,9 @@ namespace StockTracker
 						{
 							tssLabel.Text = "Status: Connected - Client ID = " + Client.ClientId;
 							btnConnect.Text = "Disconnect";
+
+							OneDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.OneDay, 0, 60 * 1000);
+							FiveDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.FiveDay, 0, 5* 60 * 1000);
 						}
 						else
 						{
@@ -147,11 +157,16 @@ namespace StockTracker
 						Log(log.Message);
 						break;
 					}
-				//case MessageType.TickOptionComputation:
+				case MessageType.CalculateWPR:
+					{
+						Log(string.Format("{0:MM/dd/yyyy HH:mm:ss} - Calculate WPR: {1}", DateTime.Now, ((CalculateWPRMessage)message).WPRType.ToString()));
+						MDManager.UpdateUI(message);
+						break;
+					}
 				case MessageType.TickPrice:
 				case MessageType.TickSize:
 					{
-						HandleTickMessage((MarketDataMessage)message);
+						MDManager.UpdateUI(message);
 						break;
 					}
 				//case MessageType.MarketDepth:
@@ -160,12 +175,12 @@ namespace StockTracker
 				//		deepBookManager.UpdateUI(message);
 				//		break;
 				//	}
-				//case MessageType.HistoricalData:
-				//case MessageType.HistoricalDataEnd:
-				//	{
-				//		historicalDataManager.UpdateUI(message);
-				//		break;
-				//	}
+				case MessageType.HistoricalData:
+				case MessageType.HistoricalDataEnd:
+					{
+						MDManager.UpdateHistoricalData(message);
+						break;
+					}
 				//case MessageType.RealTimeBars:
 				//	{
 				//		realTimeBarManager.UpdateUI(message);
@@ -302,6 +317,9 @@ namespace StockTracker
 			else
 			{
 				Connected = false;
+				MDManager.StopActiveRequests(true);
+				OneDayWPRTimer.Dispose();
+				FiveDayWPRTimer.Dispose();
 				Client.ClientSocket.eDisconnect();
 			}
 		}
@@ -311,7 +329,10 @@ namespace StockTracker
 			if (Connected)
 			{
 				Contract contract = GetMDContract();
-				MDManager.AddRequest(contract, string.Empty, (cbTradingEnvironment.SelectedItem.ToString() == "SIMULATED"));
+				if (!MDManager.AddRequest(contract, string.Empty, (cbTradingEnvironment.SelectedItem.ToString() == "SIMULATED")))
+				{
+					Log(string.Format("Error: you can only track at most {0} symbols/instruments at a time.", MarketDataManager.MAX_SUBSCRIPTIONS_ALLOWED));
+				}
 			}
 		}
 
@@ -334,6 +355,7 @@ namespace StockTracker
 		private void btnClearLog_Click(object sender, EventArgs e)
 		{
 			tbLog.Clear();
+			LogContent.Clear();
 		}
 	}
 }

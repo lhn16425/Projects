@@ -3,6 +3,7 @@ using StockTracker.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Media;
 using System.Windows.Forms;
 
 namespace StockTracker.UI
@@ -39,7 +40,9 @@ namespace StockTracker.UI
 		}
 
 		private CompareHistoricalData HistoricalDataComparer = new CompareHistoricalData();
-		
+
+		private SoundPlayer SoundPlayer = new SoundPlayer(@"C:\Windows\media\Alarm01.wav");
+
 		public MarketDataManager(IBClient client, DataGridView dataGrid) : base(client, dataGrid) {}
 
 		public bool AddRequest(Contract contract, string genericTickList, bool getDelayedData = false)
@@ -281,13 +284,16 @@ namespace StockTracker.UI
 					WPRCalculator calc = item.Value;
 					CalcWPRDelegate calcFunc;
 					int columnIndex;
+					double otherLatestWPR;
 					if (calcMsg.WPRType == WPRType.OneDay)
 					{
+						otherLatestWPR = calc.Latest5DayWPR;
 						calcFunc = calc.Get1DayWPR;
 						columnIndex = WPR_1DAY_INDEX;
 					}
 					else
 					{
+						otherLatestWPR = calc.Latest1DayWPR;
 						calcFunc = calc.Get5DayWPR;
 						columnIndex = WPR_5DAY_INDEX;
 					}
@@ -300,6 +306,10 @@ namespace StockTracker.UI
 					{
 						int rowIndex = ContractDescToRow[contractDesc];
 						grid[columnIndex, rowIndex].Value = wpr;
+						if ((wpr <= -80) && (otherLatestWPR <= -80))
+						{
+							SoundPlayer.Play();
+						}
 					}
 				}
 			}

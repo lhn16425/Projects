@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StockTracker));
 			this.ssStatus = new System.Windows.Forms.StatusStrip();
 			this.tssLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -57,6 +58,7 @@
 			this.AskPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.WPR5D = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.WPR1D = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.Buy = new System.Windows.Forms.DataGridViewButtonColumn();
 			this.ssStatus.SuspendLayout();
 			this.tlpMain.SuspendLayout();
 			this.panel1.SuspendLayout();
@@ -243,6 +245,8 @@
 			this.tbSymbol.Size = new System.Drawing.Size(100, 20);
 			this.tbSymbol.TabIndex = 0;
 			this.tbSymbol.Text = "AAPL";
+			this.tbSymbol.Click += new System.EventHandler(this.tbSymbol_Click);
+			this.tbSymbol.Validated += new System.EventHandler(this.tbSymbol_Validated);
 			// 
 			// tbCurrency
 			// 
@@ -303,13 +307,15 @@
             this.BidPrice,
             this.AskPrice,
             this.WPR5D,
-            this.WPR1D});
+            this.WPR1D,
+            this.Buy});
 			this.dgvMarketData.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.dgvMarketData.Location = new System.Drawing.Point(3, 127);
 			this.dgvMarketData.Name = "dgvMarketData";
 			this.dgvMarketData.ReadOnly = true;
 			this.dgvMarketData.Size = new System.Drawing.Size(1181, 354);
 			this.dgvMarketData.TabIndex = 2;
+			this.dgvMarketData.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvMarketData_CellContentClick);
 			// 
 			// tbLog
 			// 
@@ -360,6 +366,19 @@
 			this.WPR1D.HeaderText = "W%R 1 Day";
 			this.WPR1D.Name = "WPR1D";
 			this.WPR1D.ReadOnly = true;
+			// 
+			// Buy
+			// 
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.Buy.DefaultCellStyle = dataGridViewCellStyle1;
+			this.Buy.HeaderText = "";
+			this.Buy.Name = "Buy";
+			this.Buy.ReadOnly = true;
+			this.Buy.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+			this.Buy.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+			this.Buy.Text = "Buy";
+			this.Buy.UseColumnTextForButtonValue = true;
 			// 
 			// StockTracker
 			// 
@@ -415,6 +434,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn AskPrice;
 		private System.Windows.Forms.DataGridViewTextBoxColumn WPR5D;
 		private System.Windows.Forms.DataGridViewTextBoxColumn WPR1D;
+		private System.Windows.Forms.DataGridViewButtonColumn Buy;
 	}
 }
 

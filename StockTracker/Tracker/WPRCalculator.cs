@@ -18,6 +18,8 @@ namespace StockTracker
 		}
 		public double LatestHigh { set; get; } = -1;
 		public double LatestLow { set; get; } = -1;
+		public double Latest1DayWPR { get; private set; }
+		public double Latest5DayWPR { get; private set; }
 		public WPRCalculator() {}
 		private double CalcWPR(double historicalHigh, double historicalLow)
 		{
@@ -31,15 +33,17 @@ namespace StockTracker
 			}
 			double highestHigh = Math.Max(historicalHigh, LatestHigh);
 			double lowestLow = Math.Min(historicalLow, LatestLow);
-			return ((highestHigh - Close) / (highestHigh - lowestLow));
+			return ((highestHigh - Close) / (highestHigh - lowestLow)) * -100;
 		}
 		public double Get5DayWPR()
 		{
-			return CalcWPR(FiveDayHigh, FiveDayLow);
+			Latest5DayWPR = CalcWPR(FiveDayHigh, FiveDayLow);
+			return Latest5DayWPR;
 		}
 		public double Get1DayWPR()
 		{
-			return CalcWPR(OneDayHigh, OneDayLow);
+			Latest1DayWPR = CalcWPR(OneDayHigh, OneDayLow);
+			return Latest1DayWPR;
 		}
 	}
 }

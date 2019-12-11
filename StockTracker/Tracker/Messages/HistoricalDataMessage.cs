@@ -1,99 +1,50 @@
-﻿/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
- * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace StockTracker.Messages
 {
-    public class HistoricalDataMessage : IBMessage 
-    {
-        protected int requestId;
-        protected string date;
-        protected double open;
-        protected double high;
-        protected double low;
-        protected double close;
-        protected int volume;
-        protected int count;
-        protected double wap;
-        protected bool hasGaps;
+	public class HistoricalDataMessage : IBMessage 
+	{
+		public int RequestId { get; set; }
 
-        public int RequestId
-        {
-            get { return requestId; }
-            set { requestId = value; }
-        }
-        
-        public string Date
-        {
-            get { return date; }
-            set { date = value; }
-        }
-        
-        public double Open
-        {
-            get { return open; }
-            set { open = value; }
-        }
-        
+		public string Date { get; set; }
 
-        public double High
-        {
-            get { return high; }
-            set { high = value; }
-        }
-        
-        public double Low
-        {
-            get { return low; }
-            set { low = value; }
-        }
-        
-        public double Close
-        {
-            get { return close; }
-            set { close = value; }
-        }
-        
-        public int Volume
-        {
-            get { return volume; }
-            set { volume = value; }
-        }
-        
-        public int Count
-        {
-            get { return count; }
-            set { count = value; }
-        }
+		public double Open { get; set; }
 
-        public double Wap
-        {
-            get { return wap; }
-            set { wap = value; }
-        }
+		public double High { get; set; }
 
-        public bool HasGaps
-        {
-            get { return hasGaps; }
-            set { hasGaps = value; }
-        }
+		public double Low { get; set; }
 
-        public HistoricalDataMessage(int reqId, string date, double open, double high, double low, double close, int volume, int count, double WAP, bool hasGaps)
-        {
-            Type = MessageType.HistoricalData;
-            RequestId = reqId;
-            Date = date;
-            Open = open;
-            High = high;
-            Low = low;
-            Close = close;
-            Volume = volume;
-            Count = count;
-            Wap = WAP;
-            HasGaps = hasGaps;
-        }
-    }
+		public double Close { get; set; }
+
+		public int Volume { get; set; }
+
+		public int Count { get; set; }
+
+		public double Wap { get; set; }
+
+		public bool HasGaps { get; set; }
+
+		public HistoricalDataMessage(int reqId, string date, double open, double high, double low, double close, int volume, int count, double WAP, bool hasGaps)
+		{
+			Type = MessageType.HistoricalData;
+			RequestId = reqId;
+			Date = date;
+			Open = open;
+			High = high;
+			Low = low;
+			Close = close;
+			Volume = volume;
+			Count = count;
+			Wap = WAP;
+			HasGaps = hasGaps;
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append($"HD - RequestId: {RequestId} Date: {Date}, Count: {Count}, HasGaps: {HasGaps}\n");
+			sb.Append($"HD - RequestId: {RequestId} Open: {Open}, High: {High}, Low: {Low}, Close: {Close}, Volume: {Volume}, WAP: {Wap}");
+			return sb.ToString();
+		}
+	}
 }

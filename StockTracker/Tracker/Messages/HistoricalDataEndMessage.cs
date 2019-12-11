@@ -1,42 +1,24 @@
-﻿/* Copyright (C) 2013 Interactive Brokers LLC. All rights reserved.  This code is subject to the terms
- * and conditions of the IB API Non-Commercial License or the IB API Commercial License, as applicable. */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace StockTracker.Messages
+﻿namespace StockTracker.Messages
 {
-    public class HistoricalDataEndMessage : IBMessage
-    {
-        private int requestId;
-        private string startDate;
-        private string endDate;
+	public class HistoricalDataEndMessage : IBMessage
+	{
+		public string StartDate { get; set; }
 
-        public string StartDate
-        {
-            get { return startDate; }
-            set { startDate = value; }
-        }
+		public int RequestId { get; set; }
 
-        public int RequestId
-        {
-            get { return requestId; }
-            set { requestId = value; }
-        }
-        
-        public string EndDate
-        {
-            get { return endDate; }
-            set { endDate = value; }
-        }
+		public string EndDate { get; set; }
 
-        public HistoricalDataEndMessage(int requestId, string startDate, string endDate)
-        {
-            Type = MessageType.HistoricalDataEnd;
-            RequestId = requestId;
-            StartDate = startDate;
-            EndDate = endDate;
-        }
-    }
+		public HistoricalDataEndMessage(int requestId, string startDate, string endDate)
+		{
+			Type = MessageType.HistoricalDataEnd;
+			RequestId = requestId;
+			StartDate = startDate;
+			EndDate = endDate;
+		}
+
+		public override string ToString()
+		{
+			return $"HD End - RequestId: {RequestId}, Start Date: {StartDate}, End Date: {EndDate}";
+		}
+	}
 }

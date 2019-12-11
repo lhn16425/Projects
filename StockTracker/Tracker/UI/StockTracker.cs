@@ -3,6 +3,7 @@ using StockTracker.Messages;
 using StockTracker.UI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Threading.Timer;
@@ -26,6 +27,8 @@ namespace StockTracker
 		private const int REDUCED_LOG_SIZE = 100;
 		private List<string> LogContent = new List<string>(MAX_LOG_SIZE);
 
+		private Dictionary<string, Tuple<string, string, string>> MasterList = new Dictionary<string, Tuple<string, string, string>>();
+
 		public StockTracker()
 		{
 			InitializeComponent();
@@ -42,6 +45,37 @@ namespace StockTracker
 			Client.TickPrice += Client_TickPrice;
 			Client.HistoricalData += (reqId, date, open, high, low, close, volume, count, WAP, hasGaps) =>
 				HandleMessage(new HistoricalDataMessage(reqId, date, open, high, low, close, volume, count, WAP, hasGaps));
+
+			LoadMasterList();
+		}
+
+		void LoadMasterList()
+		{
+			try
+			{
+				using (StreamReader sr = new StreamReader("MasterList.csv"))
+				{
+					string line;
+					while ((line = sr.ReadLine()) != null)
+					{
+						line = line.Trim();
+						string[] parts = line.Split(',');
+						if ((parts.Length >= 4) && !MasterList.ContainsKey(parts[0]))
+						{
+							MasterList.Add(parts[0], new Tuple<string, string, string>(parts[1], parts[2], parts[3]));
+						}
+					}
+				}
+				tbSymbol.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+				tbSymbol.AutoCompleteSource = AutoCompleteSource.CustomSource;
+				string[] keys = new string[MasterList.Keys.Count];
+				MasterList.Keys.CopyTo(keys, 0);
+				tbSymbol.AutoCompleteCustomSource.AddRange(keys);
+			}
+			catch (Exception)
+			{
+				throw;
+			}
 		}
 
 		void Log(string msg)
@@ -176,8 +210,16 @@ namespace StockTracker
 				//		break;
 				//	}
 				case MessageType.HistoricalData:
+					{
+						HistoricalDataEndMessage historicalDataEndMessage = (HistoricalDataEndMessage)message;
+						HandleMessage(new LogMessage(historicalDataEndMessage.ToString()));
+						MDManager.UpdateHistoricalData(message);
+						break;
+					}
 				case MessageType.HistoricalDataEnd:
 					{
+						HistoricalDataMessage historicalDataMessage = (HistoricalDataMessage)message;
+						HandleMessage(new LogMessage(historicalDataMessage.ToString()));
 						MDManager.UpdateHistoricalData(message);
 						break;
 					}
@@ -338,12 +380,13 @@ namespace StockTracker
 
 		private Contract GetMDContract()
 		{
+			string exchange = tbExchange.Text.ToUpper().Trim();
 			return new Contract
 			{
 				Symbol = tbSymbol.Text.ToUpper().Trim(),
 				SecType = cbSecType.SelectedItem.ToString(),
 				Currency = tbCurrency.Text.ToUpper().Trim(),
-				Exchange = tbExchange.Text.ToUpper().Trim()
+				Exchange = (exchange == "NASDAQ") ? "ISLAND" : exchange // On the API side, NASDAQ is always defined as ISLAND in the exchange field
 			};
 		}
 
@@ -356,6 +399,32 @@ namespace StockTracker
 		{
 			tbLog.Clear();
 			LogContent.Clear();
+		}
+
+		private void dgvMarketData_CellContentClick(object sender, DataGridViewCellEventArgs e)
+		{
+			if (e.ColumnIndex == 6)
+			{
+				Log("Buy Buy Buy");
+				//dgvMarketData[6, 0].Value = "Buy";
+				//dgvMarketData[6, 0].
+			}
+		}
+
+		private void tbSymbol_Validated(object sender, EventArgs e)
+		{
+			string symbol = tbSymbol.Text.Trim().ToUpper();
+			if (MasterList.ContainsKey(symbol))
+			{
+				cbSecType.SelectedItem = MasterList[symbol].Item1;
+				tbCurrency.Text = MasterList[symbol].Item2;
+				tbExchange.Text = MasterList[symbol].Item3;
+			}
+		}
+
+		private void tbSymbol_Click(object sender, EventArgs e)
+		{
+			tbSymbol.SelectAll();
 		}
 	}
 }

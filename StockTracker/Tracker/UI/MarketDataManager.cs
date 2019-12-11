@@ -208,25 +208,26 @@ namespace StockTracker.UI
 					if (message is TickPriceMessage)
 					{
 						TickPriceMessage priceMessage = (TickPriceMessage)message;
+						string price = string.Format("{0:F3}", priceMessage.Price);
 						int rowIndex = RequestIdToRow[dataMessage.RequestId];
 						switch (dataMessage.Field) // TickType
 						{
 							case 1:  // BID
 							case 66: // delayed BID
 								{
-									grid[BID_PRICE_INDEX, rowIndex].Value = priceMessage.Price;
+									grid[BID_PRICE_INDEX, rowIndex].Value = price;
 									break;
 								}
 							case 2:  // ASK
 							case 67: // delayed ASK
 								{
-									grid[ASK_PRICE_INDEX, rowIndex].Value = priceMessage.Price;
+									grid[ASK_PRICE_INDEX, rowIndex].Value = price;
 									break;
 								}
 							case 4:  // LAST
 							case 68: // delayed LAST
 								{
-									grid[LAST_PRICE_INDEX, rowIndex].Value = priceMessage.Price;
+									grid[LAST_PRICE_INDEX, rowIndex].Value = price;
 									break;
 								}
 							case 9:  // CLOSE

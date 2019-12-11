@@ -8,8 +8,6 @@ namespace StockTracker.UI
 		protected IBClient Client;
 		protected int CurrentTicker = 1;
 
-		//protected delegate void UpdateUICallback(IBMessage msg);
-
 		public DataManager(IBClient client, Control dataGrid)
 		{
 			Client = client;

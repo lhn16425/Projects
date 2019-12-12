@@ -68,7 +68,7 @@ namespace StockTracker.UI
 			string endTime = DateTime.Now.ToString("yyyyMMdd HH:mm:ss");
 			string duration = "5 D";
 			string barSize = "1 day";
-			string whatToShow = "TRADES";
+			string whatToShow = (contract.SecType == "CASH") ? "MIDPOINT" : "TRADES";
 			int useRTH = 0;
 			AddHistoricalDataRequest(contract, contractDesc, endTime, duration, barSize, whatToShow, useRTH, 1);
 
@@ -182,14 +182,14 @@ namespace StockTracker.UI
 								calc.OneDayLow = last.Low;
 								calc.Close = last.Close;
 								double fiveDayHigh = -1;
-								double fiveDayLow = -1;
+								double fiveDayLow = double.MaxValue;
 								foreach (var item in historicalData)
 								{
 									fiveDayHigh = Math.Max(fiveDayHigh, item.High);
 									fiveDayLow = Math.Min(fiveDayLow, item.Low);
 								}
 								calc.FiveDayHigh = fiveDayHigh;
-								calc.FiveDayLow = fiveDayLow;
+								calc.FiveDayLow = (fiveDayLow == double.MaxValue) ? -1 : fiveDayLow;
 							}
 						}
 					}
@@ -212,26 +212,26 @@ namespace StockTracker.UI
 						int rowIndex = RequestIdToRow[dataMessage.RequestId];
 						switch (dataMessage.Field) // TickType
 						{
-							case 1:  // BID
-							case 66: // delayed BID
+							case TickType.BID:
+							case TickType.DELAYED_BID:
 								{
 									grid[BID_PRICE_INDEX, rowIndex].Value = price;
 									break;
 								}
-							case 2:  // ASK
-							case 67: // delayed ASK
+							case TickType.ASK:
+							case TickType.DELAYED_ASK:
 								{
 									grid[ASK_PRICE_INDEX, rowIndex].Value = price;
 									break;
 								}
-							case 4:  // LAST
-							case 68: // delayed LAST
+							case TickType.LAST:
+							case TickType.DELAYED_LAST:
 								{
 									grid[LAST_PRICE_INDEX, rowIndex].Value = price;
 									break;
 								}
-							case 9:  // CLOSE
-							case 75: // delayed CLOSE
+							case TickType.CLOSE:
+							case TickType.DELAYED_CLOSE:
 								{
 									if (RequestIdToContractDesc.ContainsKey(priceMessage.RequestId))
 									{
@@ -244,8 +244,8 @@ namespace StockTracker.UI
 									}
 									break;
 								}
-							case 6:  // HIGH
-							case 72: // delayed HIGH
+							case TickType.HIGH:
+							case TickType.DELAYED_HIGH:
 								{
 									if (RequestIdToContractDesc.ContainsKey(priceMessage.RequestId))
 									{
@@ -258,8 +258,8 @@ namespace StockTracker.UI
 									}
 									break;
 								}
-							case 7:  // LOW
-							case 73: // delayed LOW
+							case TickType.LOW:
+							case TickType.DELAYED_LOW:
 								{
 									if (RequestIdToContractDesc.ContainsKey(priceMessage.RequestId))
 									{
@@ -306,7 +306,7 @@ namespace StockTracker.UI
 					if (ContractDescToRow.ContainsKey(contractDesc))
 					{
 						int rowIndex = ContractDescToRow[contractDesc];
-						grid[columnIndex, rowIndex].Value = wpr;
+						grid[columnIndex, rowIndex].Value = string.Format("{0:F2}", wpr);
 						if ((wpr <= -80) && (otherLatestWPR <= -80))
 						{
 							SoundPlayer.Play();

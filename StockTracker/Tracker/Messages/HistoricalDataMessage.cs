@@ -41,10 +41,7 @@ namespace StockTracker.Messages
 
 		public override string ToString()
 		{
-			StringBuilder sb = new StringBuilder();
-			sb.Append($"HD - RequestId: {RequestId} Date: {Date}, Count: {Count}, HasGaps: {HasGaps}\n");
-			sb.Append($"HD - RequestId: {RequestId} Open: {Open}, High: {High}, Low: {Low}, Close: {Close}, Volume: {Volume}, WAP: {Wap}");
-			return sb.ToString();
+			return $"HD - RequestId: {RequestId}, Date: {Date}, High: {High}, Low: {Low}, Close: {Close}";
 		}
 	}
 }

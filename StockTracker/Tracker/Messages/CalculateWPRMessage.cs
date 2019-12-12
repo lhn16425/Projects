@@ -3,7 +3,8 @@
 	public enum WPRType
 	{
 		OneDay,
-		FiveDay
+		FiveDay,
+		Both
 	};
 
 	class CalculateWPRMessage : IBMessage

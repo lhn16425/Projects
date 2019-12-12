@@ -18,7 +18,7 @@
 
 		public override string ToString()
 		{
-			return $"HD End - RequestId: {RequestId}, Start Date: {StartDate}, End Date: {EndDate}";
+			return $"HD - RequestId: {RequestId}, Start Date: {StartDate}, End Date: {EndDate}";
 		}
 	}
 }

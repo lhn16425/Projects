@@ -45,6 +45,7 @@ namespace StockTracker
 			Client.TickPrice += Client_TickPrice;
 			Client.HistoricalData += (reqId, date, open, high, low, close, volume, count, WAP, hasGaps) =>
 				HandleMessage(new HistoricalDataMessage(reqId, date, open, high, low, close, volume, count, WAP, hasGaps));
+			Client.HistoricalDataEnd += (reqId, startDate, endDate) => HandleMessage(new HistoricalDataEndMessage(reqId, startDate, endDate));
 
 			LoadMasterList();
 		}
@@ -116,7 +117,16 @@ namespace StockTracker
 
 		void Client_TickPrice(int tickerId, int field, double price, int canAutoExecute)
 		{
-			HandleMessage(new LogMessage(string.Format("Tick Price - RequestId: {0}, Type: {1}, Price: {2}", tickerId, TickType.getField(field), price)));
+			//HandleMessage(new LogMessage($"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
+			if ((field == TickType.LOW) ||
+				(field == TickType.DELAYED_LOW) ||
+				(field == TickType.HIGH) ||
+				(field == TickType.DELAYED_HIGH) ||
+				(field == TickType.CLOSE) ||
+				(field == TickType.DELAYED_CLOSE))
+			{
+				HandleMessage(new LogMessage($"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
+			}
 			HandleMessage(new TickPriceMessage(tickerId, field, price, canAutoExecute));
 		}
 
@@ -163,7 +173,7 @@ namespace StockTracker
 							btnConnect.Text = "Disconnect";
 
 							OneDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.OneDay, 0, 60 * 1000);
-							FiveDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.FiveDay, 0, 5* 60 * 1000);
+							FiveDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.FiveDay, 0, 60 * 1000);
 						}
 						else
 						{
@@ -209,14 +219,14 @@ namespace StockTracker
 				//		deepBookManager.UpdateUI(message);
 				//		break;
 				//	}
-				case MessageType.HistoricalData:
+				case MessageType.HistoricalDataEnd:
 					{
 						HistoricalDataEndMessage historicalDataEndMessage = (HistoricalDataEndMessage)message;
 						HandleMessage(new LogMessage(historicalDataEndMessage.ToString()));
 						MDManager.UpdateHistoricalData(message);
 						break;
 					}
-				case MessageType.HistoricalDataEnd:
+				case MessageType.HistoricalData:
 					{
 						HistoricalDataMessage historicalDataMessage = (HistoricalDataMessage)message;
 						HandleMessage(new LogMessage(historicalDataMessage.ToString()));

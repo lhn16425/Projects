@@ -29,6 +29,12 @@
 		private void InitializeComponent()
 		{
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StockTracker));
 			this.ssStatus = new System.Windows.Forms.StatusStrip();
 			this.tssLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -332,6 +338,8 @@
 			// 
 			// Description
 			// 
+			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+			this.Description.DefaultCellStyle = dataGridViewCellStyle1;
 			this.Description.HeaderText = "Description";
 			this.Description.Name = "Description";
 			this.Description.ReadOnly = true;
@@ -339,39 +347,54 @@
 			// 
 			// Last
 			// 
+			dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.Last.DefaultCellStyle = dataGridViewCellStyle2;
 			this.Last.HeaderText = "Last";
 			this.Last.Name = "Last";
 			this.Last.ReadOnly = true;
 			// 
 			// BidPrice
 			// 
+			dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.BidPrice.DefaultCellStyle = dataGridViewCellStyle3;
 			this.BidPrice.HeaderText = "Bid";
 			this.BidPrice.Name = "BidPrice";
 			this.BidPrice.ReadOnly = true;
 			// 
 			// AskPrice
 			// 
+			dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.AskPrice.DefaultCellStyle = dataGridViewCellStyle4;
 			this.AskPrice.HeaderText = "Ask";
 			this.AskPrice.Name = "AskPrice";
 			this.AskPrice.ReadOnly = true;
 			// 
 			// WPR5D
 			// 
+			dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.WPR5D.DefaultCellStyle = dataGridViewCellStyle5;
 			this.WPR5D.HeaderText = "W%R 5 Days";
 			this.WPR5D.Name = "WPR5D";
 			this.WPR5D.ReadOnly = true;
 			// 
 			// WPR1D
 			// 
+			dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.WPR1D.DefaultCellStyle = dataGridViewCellStyle6;
 			this.WPR1D.HeaderText = "W%R 1 Day";
 			this.WPR1D.Name = "WPR1D";
 			this.WPR1D.ReadOnly = true;
 			// 
 			// Buy
 			// 
-			dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-			dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.Buy.DefaultCellStyle = dataGridViewCellStyle1;
+			dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+			dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.Buy.DefaultCellStyle = dataGridViewCellStyle7;
 			this.Buy.HeaderText = "";
 			this.Buy.Name = "Buy";
 			this.Buy.ReadOnly = true;
@@ -390,6 +413,7 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "StockTracker";
 			this.Text = "Stock Tracker";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.StockTracker_FormClosing);
 			this.ssStatus.ResumeLayout(false);
 			this.ssStatus.PerformLayout();
 			this.tlpMain.ResumeLayout(false);

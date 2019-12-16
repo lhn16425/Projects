@@ -16,8 +16,9 @@ namespace StockTracker
 
 		private MarketDataManager MDManager;
 
-		private Timer OneDayWPRTimer;
-		private Timer FiveDayWPRTimer;
+		//private Timer OneDayWPRTimer;
+		//private Timer FiveDayWPRTimer;
+		private Timer WPRTimer;
 
 		public bool Connected { get; set; }
 		private EReaderMonitorSignal MessageMonitor = new EReaderMonitorSignal();
@@ -43,6 +44,7 @@ namespace StockTracker
 			Client.ConnectionClosed += Client_ConnectionClosed;
 			Client.Error += Client_Error;
 			Client.TickPrice += Client_TickPrice;
+			Client.RealtimeBar += (reqId, time, open, high, low, close, volume, WAP, count) => HandleMessage(new RealTimeBarMessage(reqId, time, open, high, low, close, volume, WAP, count));
 			Client.HistoricalData += (reqId, date, open, high, low, close, volume, count, WAP, hasGaps) =>
 				HandleMessage(new HistoricalDataMessage(reqId, date, open, high, low, close, volume, count, WAP, hasGaps));
 			Client.HistoricalDataEnd += (reqId, startDate, endDate) => HandleMessage(new HistoricalDataEndMessage(reqId, startDate, endDate));
@@ -67,6 +69,9 @@ namespace StockTracker
 						}
 					}
 				}
+#if DEBUG
+				MasterList.Add("EUR", new Tuple<string, string, string>("CASH", "USD", "IDEALPRO"));
+#endif
 				tbSymbol.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
 				tbSymbol.AutoCompleteSource = AutoCompleteSource.CustomSource;
 				string[] keys = new string[MasterList.Keys.Count];
@@ -118,15 +123,16 @@ namespace StockTracker
 		void Client_TickPrice(int tickerId, int field, double price, int canAutoExecute)
 		{
 			//HandleMessage(new LogMessage($"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
-			if ((field == TickType.LOW) ||
-				(field == TickType.DELAYED_LOW) ||
-				(field == TickType.HIGH) ||
-				(field == TickType.DELAYED_HIGH) ||
-				(field == TickType.CLOSE) ||
-				(field == TickType.DELAYED_CLOSE))
-			{
-				HandleMessage(new LogMessage($"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
-			}
+
+			//if ((field == TickType.LOW) ||
+			//	(field == TickType.DELAYED_LOW) ||
+			//	(field == TickType.HIGH) ||
+			//	(field == TickType.DELAYED_HIGH) ||
+			//	(field == TickType.CLOSE) ||
+			//	(field == TickType.DELAYED_CLOSE))
+			//{
+			//	HandleMessage(new LogMessage($"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
+			//}
 			HandleMessage(new TickPriceMessage(tickerId, field, price, canAutoExecute));
 		}
 
@@ -160,6 +166,11 @@ namespace StockTracker
 			}
 		}
 
+		private string GetString(int value, string name)
+		{
+			return (value <= 0) ? string.Empty : $"{name}={value}";
+		}
+
 		private void UpdateUI(IBMessage message)
 		{
 			switch (message.Type)
@@ -172,8 +183,9 @@ namespace StockTracker
 							tssLabel.Text = "Status: Connected - Client ID = " + Client.ClientId;
 							btnConnect.Text = "Disconnect";
 
-							OneDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.OneDay, 0, 60 * 1000);
-							FiveDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.FiveDay, 0, 60 * 1000);
+							//OneDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.OneDay, 0, 60 * 1000);
+							//FiveDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.FiveDay, 0, 60 * 1000);
+							WPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.Both, 0, 60 * 1000);
 						}
 						else
 						{
@@ -185,14 +197,11 @@ namespace StockTracker
 				case MessageType.Error:
 					{
 						ErrorMessage error = (ErrorMessage)message;
-						if (error.RequestId <= 0)
-						{
-							Log(string.Format("Code={0} - {1}", error.Code, error.Message));
-						}
-						else
-						{
-							Log(string.Format("RequestId={0}, Code={1} - {2}", error.RequestId, error.Code, error.Message));
-						}
+						string requestId = GetString(error.RequestId, "RequestId");
+						string code = GetString(error.Code, "Code");
+						Log($"{(string.IsNullOrEmpty(requestId) ? string.Empty : requestId + ", ")}" +
+							$"{(string.IsNullOrEmpty(code) ? string.Empty : code + " - ")}" +
+							$"{error.Message}");
 						break;
 					}
 				case MessageType.Log:
@@ -203,22 +212,15 @@ namespace StockTracker
 					}
 				case MessageType.CalculateWPR:
 					{
-						Log(string.Format("{0:MM/dd/yyyy HH:mm:ss} - Calculate WPR: {1}", DateTime.Now, ((CalculateWPRMessage)message).WPRType.ToString()));
+						Log(string.Format("{0:MM/dd/yyyy HH:mm:ss} - Calculate WPR", DateTime.Now));
 						MDManager.UpdateUI(message);
 						break;
 					}
 				case MessageType.TickPrice:
-				case MessageType.TickSize:
 					{
 						MDManager.UpdateUI(message);
 						break;
 					}
-				//case MessageType.MarketDepth:
-				//case MessageType.MarketDepthL2:
-				//	{
-				//		deepBookManager.UpdateUI(message);
-				//		break;
-				//	}
 				case MessageType.HistoricalDataEnd:
 					{
 						HistoricalDataEndMessage historicalDataEndMessage = (HistoricalDataEndMessage)message;
@@ -233,11 +235,13 @@ namespace StockTracker
 						MDManager.UpdateHistoricalData(message);
 						break;
 					}
-				//case MessageType.RealTimeBars:
-				//	{
-				//		realTimeBarManager.UpdateUI(message);
-				//		break;
-				//	}
+				case MessageType.RealTimeBars:
+					{
+						RealTimeBarMessage rtbMessage = (RealTimeBarMessage)message;
+						HandleMessage(new LogMessage(rtbMessage.ToString()));
+						MDManager.UpdateRealTimeData(rtbMessage);
+						break;
+					}
 				//case MessageType.ScannerData:
 				//case MessageType.ScannerParameters:
 				//	{
@@ -368,10 +372,22 @@ namespace StockTracker
 			}
 			else
 			{
-				Connected = false;
-				MDManager.StopActiveRequests(true);
-				OneDayWPRTimer.Dispose();
-				FiveDayWPRTimer.Dispose();
+				Shutdown();
+			}
+		}
+
+		private void Shutdown()
+		{
+			Connected = false;
+			MDManager.StopActiveRequests(true);
+			//OneDayWPRTimer.Dispose();
+			//FiveDayWPRTimer.Dispose();
+			if (WPRTimer != null)
+			{
+				WPRTimer.Dispose();
+			}
+			if (Client.ClientSocket != null)
+			{
 				Client.ClientSocket.eDisconnect();
 			}
 		}
@@ -435,6 +451,11 @@ namespace StockTracker
 		private void tbSymbol_Click(object sender, EventArgs e)
 		{
 			tbSymbol.SelectAll();
+		}
+
+		private void StockTracker_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			Shutdown();
 		}
 	}
 }

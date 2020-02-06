@@ -26,6 +26,7 @@ namespace StockTracker.UI
 
 		private Dictionary<string, int> ContractDescToRow = new Dictionary<string, int>();
 		private Dictionary<int, int> RequestIdToRow = new Dictionary<int, int>();
+		private Dictionary<int, string> ReqIdToContractDesc = new Dictionary<int, string>();
 		private Dictionary<int, string> RealTimeReqIdToContractDesc = new Dictionary<int, string>();
 
 		private Dictionary<int, string> HistoricalReqIdToContractDesc = new Dictionary<int, string>();
@@ -67,30 +68,32 @@ namespace StockTracker.UI
 			}
 			Client.ClientSocket.reqMktData(requestId, contract, genericTickList, false, new List<TagValue>());
 
+
+			string whatToShow = (contract.SecType == "CASH") ? "MIDPOINT" : "TRADES";
+			AddRealTimeRequest(contract, contractDesc, whatToShow, true);
+
 			string endTime = DateTime.Now.ToString("yyyyMMdd HH:mm:ss");
 			string duration = "5 D";
 			string barSize = "1 day";
-			string whatToShow = (contract.SecType == "CASH") ? "MIDPOINT" : "TRADES";
 			int useRTH = 0;
 			AddHistoricalDataRequest(contract, contractDesc, endTime, duration, barSize, whatToShow, useRTH, 1);
 
-			AddRealTimeRequest(contract, contractDesc, whatToShow, true);
-
 			ContractDescToWPR.Add(contractDesc, new WPRCalculator());
+			ReqIdToContractDesc.Add(requestId, contractDesc);
 
 			return true;
 		}
 
 		public void AddRealTimeRequest(Contract contract, string contractDesc, string whatToShow, bool useRTH)
 		{
-			int requestId = RT_BARS_ID_BASE + CurrentTicker++;
+			int requestId = RT_BARS_ID_BASE + CurrentTicker;
 			Client.ClientSocket.reqRealTimeBars(requestId, contract, 5, whatToShow, useRTH, null);
 			RealTimeReqIdToContractDesc.Add(requestId, contractDesc);
 		}
 
 		private void AddHistoricalDataRequest(Contract contract, string contractDesc, string endDateTime, string durationString, string barSizeSetting, string whatToShow, int useRTH, int dateFormat)
 		{
-			int requestId = HISTORICAL_ID_BASE + CurrentTicker;
+			int requestId = HISTORICAL_ID_BASE + CurrentTicker++;
 			Client.ClientSocket.reqHistoricalData
 				(
 					requestId,
@@ -124,7 +127,8 @@ namespace StockTracker.UI
 				Client.ClientSocket.cancelMktData(i + TICK_ID_BASE);
 				Client.ClientSocket.cancelRealTimeBars(i + RT_BARS_ID_BASE);
 			}
-			RealTimeReqIdToContractDesc.Clear();
+			//RealTimeReqIdToContractDesc.Clear();
+			ReqIdToContractDesc.Clear();
 			RequestIdToRow.Clear();
 			HistoricalData.Clear();
 			HistoricalReqIdToContractDesc.Clear();
@@ -164,6 +168,8 @@ namespace StockTracker.UI
 					calc.Close = message.Close;
 					calc.LatestHigh = message.High;
 					calc.LatestLow = message.Low;
+					DataGridView grid = (DataGridView)DataGrid;
+					CalculateBothWPRs(contractDesc, calc, grid);
 				}
 			}
 		}
@@ -251,6 +257,8 @@ namespace StockTracker.UI
 			if (message is MarketDataMessage)
 			{
 				MarketDataMessage dataMessage = (MarketDataMessage)message;
+				int requestId = dataMessage.RequestId;
+				string contractDesc = ReqIdToContractDesc[requestId];
 				if (RequestIdToRow.ContainsKey(dataMessage.RequestId))
 				{
 					if (message is TickPriceMessage)
@@ -271,6 +279,33 @@ namespace StockTracker.UI
 							case TickType.DELAYED_LAST:
 								columnIndex = LAST_PRICE_INDEX;
 								break;
+							case TickType.LOW:
+							case TickType.DELAYED_LOW:
+								if (ContractDescToWPR.ContainsKey(contractDesc))
+								{
+									WPRCalculator calc = ContractDescToWPR[contractDesc];
+									calc.LatestLow = priceMessage.Price;
+									CalculateBothWPRs(contractDesc, calc, grid);
+								}
+								return;
+							case TickType.HIGH:
+							case TickType.DELAYED_HIGH:
+								if (ContractDescToWPR.ContainsKey(contractDesc))
+								{
+									WPRCalculator calc = ContractDescToWPR[contractDesc];
+									calc.LatestHigh = priceMessage.Price;
+									CalculateBothWPRs(contractDesc, calc, grid);
+								}
+								return;
+							case TickType.CLOSE:
+							case TickType.DELAYED_CLOSE:
+								if (ContractDescToWPR.ContainsKey(contractDesc))
+								{
+									WPRCalculator calc = ContractDescToWPR[contractDesc];
+									calc.Close = priceMessage.Price;
+									CalculateBothWPRs(contractDesc, calc, grid);
+								}
+								return;
 							default:
 								return;
 						}
@@ -279,11 +314,11 @@ namespace StockTracker.UI
 						double previousPrice = Convert.ToDouble(grid[columnIndex, rowIndex].Value);
 						if (previousPrice > priceMessage.Price)
 						{
-							grid[columnIndex, rowIndex].Style.ForeColor = Color.Red;
-						}
-						else if (previousPrice > priceMessage.Price)
-						{
 							grid[columnIndex, rowIndex].Style.ForeColor = Color.Green;
+						}
+						else if (previousPrice < priceMessage.Price)
+						{
+							grid[columnIndex, rowIndex].Style.ForeColor = Color.Red;
 						}
 						else
 						{
@@ -320,11 +355,11 @@ namespace StockTracker.UI
 				int rowIndex = ContractDescToRow[contractDesc];
 				if (oneDayWPR < 0)
 				{
-					grid[WPR_1DAY_INDEX, rowIndex].Value = string.Format("{0:F2}", oneDayWPR);
+					grid[WPR_1DAY_INDEX, rowIndex].Value = string.Format("{0:F4}", oneDayWPR);
 				}
 				if (fiveDayWPR < 0)
 				{
-					grid[WPR_5DAY_INDEX, rowIndex].Value = string.Format("{0:F2}", fiveDayWPR);
+					grid[WPR_5DAY_INDEX, rowIndex].Value = string.Format("{0:F4}", fiveDayWPR);
 				}
 				if ((oneDayWPR <= -80) && (fiveDayWPR <= -80))
 				{

@@ -4,6 +4,7 @@ using StockTracker.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Timer = System.Threading.Timer;
@@ -33,6 +34,11 @@ namespace StockTracker
 		public StockTracker()
 		{
 			InitializeComponent();
+			Assembly assembly = Assembly.GetExecutingAssembly();
+			AssemblyName assemblyName = assembly.GetName();
+			Version version = assemblyName.Version;
+			this.Text += string.Format(" - v{0}", version);
+
 			cbTradingEnvironment.SelectedItem = "SIMULATED";
 			cbSecType.SelectedItem = "STK";
 
@@ -124,15 +130,15 @@ namespace StockTracker
 		{
 			//HandleMessage(new LogMessage($"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
 
-			//if ((field == TickType.LOW) ||
-			//	(field == TickType.DELAYED_LOW) ||
-			//	(field == TickType.HIGH) ||
-			//	(field == TickType.DELAYED_HIGH) ||
-			//	(field == TickType.CLOSE) ||
-			//	(field == TickType.DELAYED_CLOSE))
-			//{
-			//	HandleMessage(new LogMessage($"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
-			//}
+			if ((field == TickType.LOW) ||
+				(field == TickType.DELAYED_LOW) ||
+				(field == TickType.HIGH) ||
+				(field == TickType.DELAYED_HIGH) ||
+				(field == TickType.CLOSE) ||
+				(field == TickType.DELAYED_CLOSE))
+			{
+				HandleMessage(new LogMessage(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss.fff ") + $"Tick Price - RequestId: {tickerId}, Type: {TickType.getField(field)}, Price: {price}"));
+			}
 			HandleMessage(new TickPriceMessage(tickerId, field, price, canAutoExecute));
 		}
 
@@ -185,7 +191,7 @@ namespace StockTracker
 
 							//OneDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.OneDay, 0, 60 * 1000);
 							//FiveDayWPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.FiveDay, 0, 60 * 1000);
-							WPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.Both, 0, 60 * 1000);
+							//WPRTimer = new Timer(new TimerCallback(CalculateWPR), WPRType.Both, 0, 60 * 1000);
 						}
 						else
 						{
@@ -212,7 +218,7 @@ namespace StockTracker
 					}
 				case MessageType.CalculateWPR:
 					{
-						Log(string.Format("{0:MM/dd/yyyy HH:mm:ss} - Calculate WPR", DateTime.Now));
+						//Log(string.Format("{0:MM/dd/yyyy HH:mm:ss} - Calculate WPR", DateTime.Now));
 						MDManager.UpdateUI(message);
 						break;
 					}
@@ -397,7 +403,14 @@ namespace StockTracker
 			if (Connected)
 			{
 				Contract contract = GetMDContract();
-				if (!MDManager.AddRequest(contract, string.Empty, (cbTradingEnvironment.SelectedItem.ToString() == "SIMULATED")))
+				bool getDelayedData = false;
+#if DEBUG
+				if (cbTradingEnvironment.SelectedItem.ToString() == "SIMULATED")
+				{
+					getDelayedData = (contract.Symbol == "EUR") ? false : true;
+				}
+#endif
+				if (!MDManager.AddRequest(contract, string.Empty, getDelayedData))
 				{
 					Log(string.Format("Error: you can only track at most {0} symbols/instruments at a time.", MarketDataManager.MAX_SUBSCRIPTIONS_ALLOWED));
 				}

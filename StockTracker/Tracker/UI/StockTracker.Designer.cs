@@ -146,7 +146,7 @@
 			this.groupBox2.Size = new System.Drawing.Size(430, 77);
 			this.groupBox2.TabIndex = 56;
 			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Market Data Subscription";
+			this.groupBox2.Text = "Watch List";
 			// 
 			// btnStop
 			// 
